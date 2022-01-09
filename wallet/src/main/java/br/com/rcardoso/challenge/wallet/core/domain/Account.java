@@ -28,7 +28,7 @@ public class Account {
     @Column(nullable = false)
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(columnDefinition="Decimal(10,2) default '0.00'")
     private BigDecimal balance = BigDecimal.ZERO;
 
 }
