@@ -1,0 +1,21 @@
+version: '3.7'
+services:
+    postgres-user:
+        image: postgres:10.5
+        restart: always
+        environment:
+          - POSTGRES_USER=root
+          - POSTGRES_DB=user
+          - POSTGRES_PASSWORD=123
+        ports:
+          - '5432:5432'
+
+    postgres-wallet:
+        image: postgres:10.5
+        restart: always
+        environment:
+          - POSTGRES_USER=root
+          - POSTGRES_DB=wallet
+          - POSTGRES_PASSWORD=123
+        ports:
+          - '5433:5432'
