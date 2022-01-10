@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class AccountDto {
 
+    @Getter
     private Long id;
 
     @Getter
