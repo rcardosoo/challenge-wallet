@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>br.com.rcardoso.challenge</groupId>
 	<artifactId>eureka</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>eureka</name>
 	<description>Eureka Server</description>
 	<properties>

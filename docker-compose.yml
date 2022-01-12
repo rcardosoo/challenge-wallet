@@ -1,24 +1,32 @@
 version: '3.7'
 services:
-    postgres-user:
-        image: postgres:10.5
-        restart: always
-        environment:
-          - POSTGRES_USER=root
-          - POSTGRES_DB=user
-          - POSTGRES_PASSWORD=123
-        ports:
-          - '5432:5432'
+    db-user:
+      image: mysql:5.7
+      ports:
+        - '3306:3306'
+      environment:
+        - MYSQL_ROOT_PASSWORD=123
+        - MYSQL_DATABASE=user
+        - MYSQL_USER=userdb
+        - MYSQL_PASSWORD=admin123
+      volumes:
+        - /data/mysql
+      networks:
+        - challenge-wallet
 
-    postgres-wallet:
-        image: postgres:10.5
-        restart: always
-        environment:
-          - POSTGRES_USER=root
-          - POSTGRES_DB=wallet
-          - POSTGRES_PASSWORD=123
-        ports:
-          - '5433:5432'
+    db-wallet:
+      image: mysql:5.7
+      ports:
+        - '3307:3306'
+      environment:
+        - MYSQL_ROOT_PASSWORD=123
+        - MYSQL_DATABASE=wallet
+        - MYSQL_USER=userdb
+        - MYSQL_PASSWORD=admin123
+      volumes:
+        - /data/mysql
+      networks:
+        - challenge-wallet
 
     zookeeper:
       image: confluentinc/cp-zookeeper:6.1.1
@@ -26,6 +34,8 @@ services:
         - "2181:2181"
       environment:
         ZOOKEEPER_CLIENT_PORT: 2181
+      networks:
+        - challenge-wallet
 
     kafka:
       image: confluentinc/cp-kafka:6.1.1
@@ -36,12 +46,14 @@ services:
       expose:
         - '29092'
       environment:
-        KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-        KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
-        KAFKA_MIN_INSYNC_REPLICAS: '1'
+        - KAFKA_ZOOKEEPER_CONNECT='zookeeper:2181'
+        - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+        - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+        - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+        - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR='1'
+        - KAFKA_MIN_INSYNC_REPLICAS='1'
+      networks:
+        - challenge-wallet
 
     init-kafka:
       image: confluentinc/cp-kafka:6.1.1
@@ -59,3 +71,74 @@ services:
         echo -e 'Successfully created the following topics:'
         kafka-topics --bootstrap-server kafka:29092 --list
         "
+      networks:
+        - challenge-wallet
+
+    user-service:      
+      build: ./user
+      container_name: user
+      ports:
+        - "8889:8889"
+      restart: always
+      depends_on:
+        - db-user
+        - kafka
+        - zookeeper
+        - eureka-service
+      links:
+        - db-user 
+      environment:
+        - DB_HOST=db-user
+        - DB_USER=userdb
+        - DB_PASSWORD=admin123
+        - DB_NAME=user
+        - KAFKA_SERVER=kafka
+      networks:
+        - challenge-wallet
+
+    wallet-service:      
+      build: ./wallet
+      container_name: wallet
+      ports:
+        - "8890:8890"
+      restart: always
+      depends_on:
+        - db-user
+        - kafka
+        - zookeeper
+        - eureka-service
+      links:
+        - db-user 
+      environment:
+        - DB_HOST=db-wallet
+        - DB_USER=userdb
+        - DB_PASSWORD=admin123
+        - DB_NAME=wallet
+        - KAFKA_SERVER=kafka
+      networks:
+        - challenge-wallet
+
+    gateway-service:      
+      build: ./gateway
+      container_name: gateway
+      ports:
+        - "8891:8891"
+      restart: always
+      depends_on:
+        - eureka-service  
+        - user-service
+        - wallet-service
+      networks:
+        - challenge-wallet
+
+    eureka-service:      
+      build: ./eureka
+      container_name: eureka
+      ports:
+        - "8888:8888"
+      restart: always
+      networks:
+        - challenge-wallet
+
+networks:
+  challenge-wallet: 
