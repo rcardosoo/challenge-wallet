@@ -35,7 +35,7 @@ public class AccountServiceImpl implements IAccountService {
 
     @Override
     public BigDecimal getBalance(Long accountId) {
-        return accountRepository.findBalanceById(accountId);
+        return accountRepository.getAccountById(accountId).getBalance();
     }
 
     @Override

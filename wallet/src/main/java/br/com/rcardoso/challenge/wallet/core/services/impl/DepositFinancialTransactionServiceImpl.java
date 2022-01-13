@@ -38,9 +38,7 @@ public class DepositFinancialTransactionServiceImpl implements IFinancialTransac
         final var transaction = transactionRepository.save(Transaction.builder()
                 .createdAt(LocalDateTime.now())
                 .transactionType(DEPOSIT)
-                .destinationAccount(Account.builder()
-                        .id(account.getId())
-                        .build())
+                .destinationAccount(account.toEntity())
                 .originalValue(transactionDto.getValue())
                 .build());
 

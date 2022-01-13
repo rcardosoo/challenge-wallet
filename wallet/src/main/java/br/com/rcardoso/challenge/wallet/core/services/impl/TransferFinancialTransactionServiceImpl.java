@@ -36,14 +36,13 @@ public class TransferFinancialTransactionServiceImpl implements IFinancialTransa
     @Override
     public Transaction createFinancialTransaction(TransactionDto transactionDto) {
         final var requestAccount = accountService.read(transactionDto.getRequesterAccount());
-
         final var destinationAccount = accountService.read(transactionDto.getDestinationAccount());
 
         final var transaction = transactionRepository.save(Transaction.builder()
                 .createdAt(LocalDateTime.now())
                 .transactionType(TRANSFER)
-                .sourceAccount(Account.builder().id(requestAccount.getId()).build())
-                .sourceAccount(Account.builder().id(destinationAccount.getId()).build())
+                .sourceAccount(requestAccount.toEntity())
+                .destinationAccount(destinationAccount.toEntity())
                 .originalValue(transactionDto.getValue())
                 .build());
 

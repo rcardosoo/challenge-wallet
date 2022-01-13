@@ -13,6 +13,8 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import static java.util.Objects.nonNull;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -39,8 +41,12 @@ public class TransactionDto {
     public TransactionDto(Transaction entity) {
         this.setId(entity.getId());
         this.setTransactionType(entity.getTransactionType());
-        this.setRequesterAccount(entity.getSourceAccount().getId());
-        this.setDestinationAccount(entity.getDestinationAccount().getId());
+        this.setRequesterAccount(nonNull(entity.getSourceAccount())
+                ? entity.getSourceAccount().getId()
+                : null);
+        this.setDestinationAccount(nonNull(entity.getDestinationAccount())
+                ? entity.getDestinationAccount().getId()
+                : null);
         this.setCreatedAt(entity.getCreatedAt());
         this.setValue(entity.getOriginalValue());
     }

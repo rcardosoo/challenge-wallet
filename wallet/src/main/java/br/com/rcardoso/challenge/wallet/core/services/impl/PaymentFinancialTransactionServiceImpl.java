@@ -37,9 +37,7 @@ public class PaymentFinancialTransactionServiceImpl implements IFinancialTransac
         final var transaction = transactionRepository.save(Transaction.builder()
                 .createdAt(LocalDateTime.now())
                 .transactionType(PAYMENT)
-                .sourceAccount(Account.builder()
-                        .id(account.getId())
-                        .build())
+                .sourceAccount(account.toEntity())
                 .originalValue(transactionDto.getValue())
                 .build());
 

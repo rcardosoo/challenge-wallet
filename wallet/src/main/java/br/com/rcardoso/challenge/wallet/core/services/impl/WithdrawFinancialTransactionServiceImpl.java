@@ -36,9 +36,7 @@ public class WithdrawFinancialTransactionServiceImpl implements IFinancialTransa
         final var transaction = transactionRepository.save(Transaction.builder()
                 .createdAt(LocalDateTime.now())
                 .transactionType(WITHDRAW)
-                .sourceAccount(Account.builder()
-                        .id(account.getId())
-                        .build())
+                .sourceAccount(account.toEntity())
                 .originalValue(transactionDto.getValue())
                 .build());
 

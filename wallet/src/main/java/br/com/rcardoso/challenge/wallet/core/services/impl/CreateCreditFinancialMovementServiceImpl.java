@@ -23,7 +23,7 @@ public class CreateCreditFinancialMovementServiceImpl implements ICreateFinancia
     @Override
     public void create(FinancialMovementDto financialMovementDto, Transaction transaction) {
 
-        var account = transaction.getSourceAccount();
+        var account = transaction.getDestinationAccount();
         account.setBalance(account.getBalance().add(financialMovementDto.getValue()));
         accountService.updateAccount(account);
 
